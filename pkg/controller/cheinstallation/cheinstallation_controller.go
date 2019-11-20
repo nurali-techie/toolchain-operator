@@ -108,22 +108,16 @@ func (r *ReconcileCheInstallation) Reconcile(request reconcile.Request) (reconci
 func (r *ReconcileCheInstallation) EnsureCheInstallation(logger logr.Logger, cheInstallation *v1alpha1.CheInstallation) error {
 	ns := cheInstallation.Spec.CheOperatorSpec.Namespace
 
-	if created, err := r.ensureCheNamespace(logger, cheInstallation); err != nil {
+	if _, err := r.ensureCheNamespace(logger, cheInstallation); err != nil {
 		return r.wrapErrorWithStatusUpdate(logger, cheInstallation, r.setStatusCheSubscriptionFailed, err, "failed to create namespace %s", ns)
-	} else if created {
-		return nil
 	}
 
-	if created, err := r.ensureCheOperatorGroup(logger, ns, cheInstallation); err != nil {
+	if _, err := r.ensureCheOperatorGroup(logger, ns, cheInstallation); err != nil {
 		return r.wrapErrorWithStatusUpdate(logger, cheInstallation, r.setStatusCheSubscriptionFailed, err, "failed to create operatorgroup in namespace %s", ns)
-	} else if created {
-		return nil
 	}
 
-	if created, err := r.ensureCheSubscription(logger, ns, cheInstallation); err != nil {
+	if _, err := r.ensureCheSubscription(logger, ns, cheInstallation); err != nil {
 		return r.wrapErrorWithStatusUpdate(logger, cheInstallation, r.setStatusCheSubscriptionFailed, err, "failed to create che subscription in namespace %s", ns)
-	} else if created {
-		return nil
 	}
 
 	return r.statusUpdate(logger, cheInstallation, r.setStatusCheSubscriptionReady, "")
